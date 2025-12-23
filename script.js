@@ -1,41 +1,57 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Password Generator</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div class="container">
-        <h1>Password Generator</h1>
-        <div class="options">
-            <label for="length">Password Length:</label>
-            <input type="number" id="length" min="4" max="50" value="12">
-        </div>
-        <div class="options">
-            <input type="checkbox" id="uppercase" checked>
-            <label for="uppercase">Include Uppercase Letters</label>
-        </div>
-        <div class="options">
-            <input type="checkbox" id="lowercase" checked>
-            <label for="lowercase">Include Lowercase Letters</label>
-        </div>
-        <div class="options">
-            <input type="checkbox" id="numbers" checked>
-            <label for="numbers">Include Numbers</label>
-        </div>
-        <div class="options">
-            <input type="checkbox" id="symbols" checked>
-            <label for="symbols">Include Symbols</label>
-        </div>
-        <button id="generate">Generate Password</button>
-        <div class="password-display">
-            <input type="text" id="password" readonly>
-            <button id="copy">Copy</button>
-        </div>
-        <button id="save">Save as Text File</button>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+document.getElementById('generate').addEventListener('click', generatePassword);
+document.getElementById('copy').addEventListener('click', copyPassword);
+document.getElementById('save').addEventListener('click', savePassword);
+
+function generatePassword() {
+    const length = document.getElementById('length').value;
+    const uppercase = document.getElementById('uppercase').checked;
+    const lowercase = document.getElementById('lowercase').checked;
+    const numbers = document.getElementById('numbers').checked;
+    const symbols = document.getElementById('symbols').checked;
+
+    let charset = '';
+    if (uppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (lowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+    if (numbers) charset += '0123456789';
+    if (symbols) charset += '!@#$%^&*()_+[]{}|;:,.<>?';
+
+    if (charset === '') {
+        alert('Please select at least one option.');
+        return;
+    }
+
+    let password = '';
+    for (let i = 0; i < length; i++) {
+        password += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+
+    document.getElementById('password').value = password;
+}
+
+function copyPassword() {
+    const password = document.getElementById('password').value;
+    if (password) {
+        navigator.clipboard.writeText(password).then(() => {
+            alert('Password copied to clipboard!');
+        });
+    } else {
+        alert('No password to copy.');
+    }
+}
+
+function savePassword() {
+    const password = document.getElementById('password').value;
+    if (password) {
+        const blob = new Blob([password], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'password.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } else {
+        alert('No password to save.');
+    }
+}
